@@ -5,26 +5,48 @@
 #include <string>
 #include <mutex>
 
+#include "teb_local_planner/FeedbackMsg.h"
+
 ros::NodeHandle* node;
+#define RATE (10)
 
 int main(int argc, char **argv)
 {
-	/**
-	 * The ros::init() function needs to see argc and argv so that it can perform
-	 * any ROS arguments and name remapping that were provided at the command line.
-	 * For programmatic remappings you can use a different version of init() which takes
-	 * remappings directly, but for most command-line programs, passing argc and argv is
-	 * the easiest way to do it.  The third argument to init() is the name of the node.
-	 *
-	 * You must call one of the versions of ros::init() before using any other
-	 * part of the ROS system.
-	 */
 	ros::init(argc, argv, "local_planner_node");
 
 	ros::NodeHandle n;
-
 	node = &n;
+    ros::Rate rate(RATE);
 
-	ros::spin();
+    ros::Publisher output_pub =
+        node->advertise<teb_local_planner::FeedbackMsg>("/teb_feedback", 1);
+
+
+    while( ros::ok() )
+    {
+
+        teb_local_planner::FeedbackMsg output_traj;
+
+        teb_local_planner::TrajectoryMsg traj;
+        teb_local_planner::TrajectoryPointMsg traj_point;
+
+        traj_point.velocity.linear.x = 10;
+        traj_point.time_from_start = ros::Duration(1.0);
+        traj.trajectory.push_back( traj_point );
+
+        traj_point.velocity.linear.x = 10;
+        traj_point.velocity.linear.y = 10;
+        traj_point.time_from_start = ros::Duration(2.0);
+        traj.trajectory.push_back( traj_point );
+
+        output_traj.trajectories.push_back( traj );
+
+        output_pub.publish(output_traj);
+
+        ros::spinOnce();
+        rate.sleep();
+    }
+
+
 	return 0;
 }
