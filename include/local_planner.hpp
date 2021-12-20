@@ -1,6 +1,9 @@
-
+#pragma once
 #include "ros/ros.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <teb_local_planner/teb_local_planner_ros.h>
+#pragma GCC diagnostic pop
 
 class LocalPlanner{
 public:
