@@ -5,8 +5,11 @@
 #include <string>
 #include <mutex>
 
-#include "teb_local_planner/FeedbackMsg.h"
+#include <teb_local_planner/FeedbackMsg.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <teb_local_planner/teb_local_planner_ros.h>
+#pragma GCC diagnostic pop
 #include "local_planner.hpp"
 
 ros::NodeHandle* node;
