@@ -6,8 +6,11 @@
 #include <mutex>
 
 #include "teb_local_planner/FeedbackMsg.h"
+#include <teb_local_planner/teb_local_planner_ros.h>
+#include "local_planner.hpp"
 
 ros::NodeHandle* node;
+
 #define RATE (10)
 
 int main(int argc, char **argv)
@@ -21,10 +24,14 @@ int main(int argc, char **argv)
     ros::Publisher output_pub =
         node->advertise<teb_local_planner::FeedbackMsg>("/teb_feedback", 1);
 
+    LocalPlanner planner(node);
 
     while( ros::ok() )
     {
 
+        planner.step();
+
+        /*
         teb_local_planner::FeedbackMsg output_traj;
 
         teb_local_planner::TrajectoryMsg traj;
@@ -40,8 +47,9 @@ int main(int argc, char **argv)
         traj.trajectory.push_back( traj_point );
 
         output_traj.trajectories.push_back( traj );
-
         output_pub.publish(output_traj);
+        */
+
 
         ros::spinOnce();
         rate.sleep();
