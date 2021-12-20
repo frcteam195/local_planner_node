@@ -4,9 +4,18 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(${PROJECT_NAME})
 
-
 find_package(catkin REQUIRED COMPONENTS roscpp std_msgs message_generation rio_control_node teb_local_planner)
 
+add_message_files(
+  FILES
+  TrajectoryFollowCue.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs  # Or other packages containing msgs
+  geometry_msgs
+)
 
 catkin_package(
 #  INCLUDE_DIRS include
