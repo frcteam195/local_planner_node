@@ -11,7 +11,7 @@
 
 ros::NodeHandle* node;
 
-#define RATE (10)
+#define RATE (1)
 
 int main(int argc, char **argv)
 {
