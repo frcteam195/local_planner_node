@@ -103,5 +103,7 @@ int main(int argc, char **argv)
 
     ros::spin();
 
+    planner_thread.join();
+
 	return 0;
 }
