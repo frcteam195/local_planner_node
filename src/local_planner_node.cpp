@@ -27,6 +27,7 @@ tf2_ros::TransformListener * tfListener;
 costmap_2d::Costmap2DROS * costmap;
 
 bool plan_active = false;
+std::vector<geometry_msgs::PoseStamped> plan;
 
 void send_initial_plan()
 {
@@ -44,7 +45,6 @@ void send_initial_plan()
     target.header.stamp = ros::Time::now();
     target.header.frame_id = "odom";
 
-    std::vector<geometry_msgs::PoseStamped> plan;
     plan.push_back(target);
     planner->setPlan(plan);
     plan_active = true;
@@ -56,6 +56,7 @@ void planner_loop(void)
     {
         local_planner_node::TrajectoryFollowCue active_trajectory;
         geometry_msgs::Twist result;
+        planner->setPlan(plan);
         if(plan_active)
         {
             planner->computeVelocityCommands(result);
