@@ -23,7 +23,7 @@ LocalPlanner::LocalPlanner( ros::NodeHandle* n )
 void LocalPlanner::step()
 {
     planner.plan(teb_local_planner::PoseSE2(0,0,0),
-                  teb_local_planner::PoseSE2(4,0,0));
+                  teb_local_planner::PoseSE2(1,0,0));
 
     planner.visualize();
     visual->publishObstacles(obst_vector);
