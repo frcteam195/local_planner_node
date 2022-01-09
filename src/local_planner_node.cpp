@@ -37,8 +37,8 @@ void send_initial_plan()
     target.pose.orientation.x = Up.getX();
     target.pose.orientation.y = Up.getY();
     target.pose.orientation.z = Up.getZ();
-    target.pose.position.x = 4;
-    target.pose.position.y = 0;
+    target.pose.position.x = 1.5;
+    target.pose.position.y = 1.5;
     target.pose.position.z = 0;
 
     target.header.stamp = ros::Time::now();
