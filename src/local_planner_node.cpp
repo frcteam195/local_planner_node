@@ -27,11 +27,11 @@ tf2_ros::TransformListener * tfListener;
 costmap_2d::Costmap2DROS * costmap;
 
 bool plan_active = false;
-std::vector<geometry_msgs::PoseStamped> plan;
 
 void send_initial_plan()
 {
     geometry_msgs::PoseStamped target;
+    std::vector<geometry_msgs::PoseStamped> plan;
     tf2::Quaternion Up;
     Up.setRPY(0,0,0);
     target.pose.orientation.w = Up.getW();
@@ -56,7 +56,6 @@ void planner_loop(void)
     {
         local_planner_node::TrajectoryFollowCue active_trajectory;
         geometry_msgs::Twist result;
-        planner->setPlan(plan);
         if(plan_active)
         {
             planner->computeVelocityCommands(result);
