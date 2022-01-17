@@ -13,6 +13,7 @@
 #pragma GCC diagnostic pop
 
 #include "local_planner_node/TrajectoryFollowCue.h"
+#include "local_planner_node/PlanReq.h"
 
 #define RATE (1)
 
@@ -84,6 +85,16 @@ void planner_loop(void)
     }
 }
 
+bool add_plan_request( local_planner_node::PlanReq::Request& req,
+                       local_planner_node::PlanReq::Response& resp)
+{
+    (void)req;
+    (void)resp;
+
+    std::cout << "\n\nLANE REQUIEST\n";
+    return true;
+}
+
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "local_planner_node");
@@ -97,12 +108,13 @@ int main(int argc, char **argv)
     costmap = new costmap_2d::Costmap2DROS("costmap", *tfBuffer);
 
     planner->initialize("", tfBuffer, costmap);
+
     send_initial_plan();
 
+    ros::ServiceServer service_plan_req = node->advertiseService("plan_request", add_plan_request);
+
     std::thread planner_thread(planner_loop);
-
     ros::spin();
-
     planner_thread.join();
 
 	return 0;

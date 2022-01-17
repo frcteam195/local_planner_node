@@ -11,6 +11,12 @@ add_message_files(
   TrajectoryFollowCue.msg
 )
 
+## Generate services in the 'srv' folder
+add_service_files(
+  FILES
+  PlanReq.srv
+)
+
 generate_messages(
   DEPENDENCIES
   std_msgs  # Or other packages containing msgs
