@@ -1,2 +1,3 @@
-# Template Node
-This template ROS node is designed as a starting point for creating a standard ROS node.
+# Local Planner Node
+[![CI Build Status](https://github.com/frcteam195/local_planner_node/actions/workflows/main.yml/badge.svg)](https://github.com/frcteam195/local_planner_node/actions/workflows/main.yml)
+---
