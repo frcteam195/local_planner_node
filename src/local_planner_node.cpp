@@ -21,10 +21,8 @@ using namespace teb_local_planner;
 
 ros::NodeHandle* node;
 TebLocalPlannerROS * planner;
-
 tf2_ros::Buffer * tfBuffer;
 tf2_ros::TransformListener * tfListener;
-
 costmap_2d::Costmap2DROS * costmap;
 
 bool plan_active = false;
@@ -91,7 +89,7 @@ bool add_plan_request( local_planner_node::PlanReq::Request& req,
     (void)req;
     (void)resp;
 
-    std::cout << "\n\nLANE REQUIEST\n";
+    std::cout << "\n\nPLANE REQUIEST\n";
     return true;
 }
 
@@ -102,16 +100,15 @@ int main(int argc, char **argv)
 	ros::NodeHandle n;
 	node = &n;
 
+    ros::ServiceServer service_plan_req = node->advertiseService("local_plan_request", add_plan_request);
+
     tfBuffer = new tf2_ros::Buffer();
     planner = new TebLocalPlannerROS();
     tfListener = new tf2_ros::TransformListener(*tfBuffer);
     costmap = new costmap_2d::Costmap2DROS("costmap", *tfBuffer);
 
     planner->initialize("", tfBuffer, costmap);
-
     send_initial_plan();
-
-    ros::ServiceServer service_plan_req = node->advertiseService("plan_request", add_plan_request);
 
     std::thread planner_thread(planner_loop);
     ros::spin();
