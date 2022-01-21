@@ -49,6 +49,30 @@ void send_initial_plan()
     plan_active = true;
 }
 
+bool add_plan_request( local_planner_node::PlanReq::Request& req,
+                       local_planner_node::PlanReq::Response& resp)
+{
+    (void)req;
+    (void)resp;
+
+    std::cout << "Got request : " << req << "\n";
+
+    std_msgs::Header HEADER;
+    HEADER.frame_id = "base_link";
+    HEADER.stamp = ros::Time::now();
+
+    for( int i = 0; (size_t)i < req.plan.size(); i++ )
+    {
+        req.plan[i].header = HEADER;
+    }
+
+    planner->setPlan(req.plan);
+    plan_active = true;
+
+    std::cout << "\n\nPLANE REQUIEST\n";
+    return true;
+}
+
 void planner_loop(void)
 {
     while(ros::ok())
@@ -83,15 +107,6 @@ void planner_loop(void)
     }
 }
 
-bool add_plan_request( local_planner_node::PlanReq::Request& req,
-                       local_planner_node::PlanReq::Response& resp)
-{
-    (void)req;
-    (void)resp;
-
-    std::cout << "\n\nPLANE REQUIEST\n";
-    return true;
-}
 
 int main(int argc, char **argv)
 {
@@ -103,15 +118,26 @@ int main(int argc, char **argv)
     ros::ServiceServer service_plan_req = node->advertiseService("local_plan_request", add_plan_request);
 
     tfBuffer = new tf2_ros::Buffer();
+    std::cout << " \n\n 1 \n\n";
+
     planner = new TebLocalPlannerROS();
+    std::cout << " \n\n 2 \n\n";
+
     tfListener = new tf2_ros::TransformListener(*tfBuffer);
+    std::string err;
+    bool bleh = tfBuffer->canTransform("base_link", "map", ros::Time(0), ros::Duration(3.0), &err );
+    std::cout << "  bleh: " << bleh << "\n\n" << err << "\n\n";;
+    std::cout << " \n\n 3 \n\n";
+
     costmap = new costmap_2d::Costmap2DROS("costmap", *tfBuffer);
+    std::cout << " \n\n 4 \n\n";
 
     planner->initialize("", tfBuffer, costmap);
-    send_initial_plan();
-
+    std::cout << " \n\n 5 \n\n";
     std::thread planner_thread(planner_loop);
+    std::cout << " \n\n 6 \n\n";
     ros::spin();
+    std::cout << " \n\n 7 \n\n";
     planner_thread.join();
 
 	return 0;
