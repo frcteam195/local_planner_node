@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 
     tfListener = new tf2_ros::TransformListener(*tfBuffer);
     std::string err;
-    bool bleh = tfBuffer->canTransform("base_link", "map", ros::Time(0), ros::Duration(3.0), &err );
+    tfBuffer->canTransform("base_link", "map", ros::Time(0), ros::Duration(3.0), &err );
 
     costmap = new costmap_2d::Costmap2DROS("costmap", *tfBuffer);
 
