@@ -27,49 +27,15 @@ costmap_2d::Costmap2DROS * costmap;
 
 bool plan_active = false;
 
-void send_initial_plan()
-{
-    geometry_msgs::PoseStamped target;
-    std::vector<geometry_msgs::PoseStamped> plan;
-    tf2::Quaternion Up;
-    Up.setRPY(0,0,0);
-    target.pose.orientation.w = Up.getW();
-    target.pose.orientation.x = Up.getX();
-    target.pose.orientation.y = Up.getY();
-    target.pose.orientation.z = Up.getZ();
-    target.pose.position.x = 1.5;
-    target.pose.position.y = 1.5;
-    target.pose.position.z = 0;
-
-    target.header.stamp = ros::Time::now();
-    target.header.frame_id = "odom";
-
-    plan.push_back(target);
-    planner->setPlan(plan);
-    plan_active = true;
-}
-
 bool add_plan_request( local_planner_node::PlanReq::Request& req,
                        local_planner_node::PlanReq::Response& resp)
 {
     (void)req;
     (void)resp;
 
-    std::cout << "Got request : " << req << "\n";
-
-    std_msgs::Header HEADER;
-    HEADER.frame_id = "base_link";
-    HEADER.stamp = ros::Time::now();
-
-    for( int i = 0; (size_t)i < req.plan.size(); i++ )
-    {
-        req.plan[i].header = HEADER;
-    }
-
     planner->setPlan(req.plan);
     plan_active = true;
 
-    std::cout << "\n\nPLANE REQUIEST\n";
     return true;
 }
 
