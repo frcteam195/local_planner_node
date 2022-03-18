@@ -8,12 +8,14 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <teb_local_planner/teb_local_planner_ros.h>
+#include <vector>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/transform_broadcaster.h>
 #pragma GCC diagnostic pop
 
 #include "local_planner_node/TrajectoryFollowCue.h"
 #include "local_planner_node/PlanReq.h"
+#include "local_planner_node/LocalPlannerDiagnostics.h"
 
 #define RATE (1)
 
@@ -25,13 +27,20 @@ tf2_ros::Buffer * tfBuffer;
 tf2_ros::TransformListener * tfListener;
 costmap_2d::Costmap2DROS * costmap;
 
-bool plan_active = false;
+std::vector<std::string> points;
+
+static bool plan_active = false;
 
 bool add_plan_request( local_planner_node::PlanReq::Request& req,
                        local_planner_node::PlanReq::Response& resp)
 {
     (void)req;
     (void)resp;
+
+    for (size_t i = 0; i < req.plan.size(); i++)
+    {
+        points.push_back (req.plan[i].header.frame_id);
+    }
 
     planner->setPlan(req.plan);
     plan_active = true;
@@ -73,6 +82,16 @@ void planner_loop(void)
     }
 }
 
+void publish_local_planner_diagnostics ()
+{
+    static ros::Publisher diagnostics_publisher = node->advertise<local_planner_node::LocalPlannerDiagnostics>("/LocalPlannerNodeDiagnostics", 1);
+    local_planner_node::LocalPlannerDiagnostics diagnostics;
+    for(std::vector<std::string>::iterator i = points.begin(); i != points.end(); i++)
+    {
+        diagnostics.points.push_back(*i);
+    }
+    diagnostics.traj_active = plan_active;
+}
 
 int main(int argc, char **argv)
 {

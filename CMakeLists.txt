@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp std_msgs message_generation rio_c
 add_message_files(
   FILES
   TrajectoryFollowCue.msg
+  LocalPlannerDiagnostics.msg
 )
 
 ## Generate services in the 'srv' folder
