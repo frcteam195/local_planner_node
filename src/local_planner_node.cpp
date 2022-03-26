@@ -34,6 +34,8 @@ static bool plan_active = false;
 bool add_plan_request( local_planner_node::PlanReq::Request& req,
                        local_planner_node::PlanReq::Response& resp)
 {
+    static ros::Publisher via_pub = node->advertise<nav_msgs::Path>("/local_planner_node/via_points", 1);
+    
     (void)req;
     (void)resp;
 
@@ -42,10 +44,50 @@ bool add_plan_request( local_planner_node::PlanReq::Request& req,
         points.push_back (req.plan[i].header.frame_id);
     }
 
-    planner->setPlan(req.plan);
+    std::vector<geometry_msgs::PoseStamped> prevPlan = req.plan;
+    std::vector<geometry_msgs::PoseStamped> lastPoint;
+    if (prevPlan.size() > 0)
+    {
+        lastPoint.push_back(req.plan[req.plan.size() - 1]);
+        prevPlan.pop_back();
+    }
+
+    if (prevPlan.size() > 0)
+    {
+        nav_msgs::Path viaPoints;
+        viaPoints.header.frame_id = "odom";
+        for (geometry_msgs::PoseStamped& p : prevPlan)
+        {
+            tf2::Stamped<tf2::Transform> point_to_first_point;
+            tf2::convert(tfBuffer->lookupTransform("odom", p.header.frame_id, ros::Time(0)), point_to_first_point);
+            ROS_INFO("Pose frame: %s", p.header.frame_id.c_str());
+
+            p.header.frame_id = "odom";
+            p.pose.position.x = point_to_first_point.getOrigin().getX();
+            p.pose.position.y = point_to_first_point.getOrigin().getY();
+            p.pose.position.z = point_to_first_point.getOrigin().getZ();
+
+            //TODO: Fix orientation
+            viaPoints.poses.push_back(p);
+        }
+        via_pub.publish(viaPoints);
+    }
+    planner->setPlan(lastPoint);
     plan_active = true;
 
     return true;
+}
+
+void publish_local_planner_diagnostics ()
+{
+    static ros::Publisher diagnostics_publisher = node->advertise<local_planner_node::LocalPlannerDiagnostics>("/LocalPlannerNodeDiagnostics", 1);
+    local_planner_node::LocalPlannerDiagnostics diagnostics;
+    for(std::vector<std::string>::iterator i = points.begin(); i != points.end(); i++)
+    {
+        diagnostics.points.push_back(*i);
+    }
+    diagnostics.traj_active = plan_active;
+    diagnostics_publisher.publish(diagnostics);
 }
 
 void planner_loop(void)
@@ -84,17 +126,7 @@ void planner_loop(void)
     }
 }
 
-void publish_local_planner_diagnostics ()
-{
-    static ros::Publisher diagnostics_publisher = node->advertise<local_planner_node::LocalPlannerDiagnostics>("/LocalPlannerNodeDiagnostics", 1);
-    local_planner_node::LocalPlannerDiagnostics diagnostics;
-    for(std::vector<std::string>::iterator i = points.begin(); i != points.end(); i++)
-    {
-        diagnostics.points.push_back(*i);
-    }
-    diagnostics.traj_active = plan_active;
-    diagnostics_publisher.publish(diagnostics);
-}
+
 
 int main(int argc, char **argv)
 {
