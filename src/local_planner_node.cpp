@@ -77,6 +77,8 @@ void planner_loop(void)
             active_trajectory.traj_follow_active = false;
         }
 
+        publish_local_planner_diagnostics();
+
         static ros::Publisher active_traj_publisher = node->advertise<local_planner_node::TrajectoryFollowCue>("/active_trajectory", 1);
         active_traj_publisher.publish(active_trajectory);
     }
@@ -91,6 +93,7 @@ void publish_local_planner_diagnostics ()
         diagnostics.points.push_back(*i);
     }
     diagnostics.traj_active = plan_active;
+    diagnostics_publisher.publish(diagnostics);
 }
 
 int main(int argc, char **argv)
